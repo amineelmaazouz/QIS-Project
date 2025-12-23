@@ -24,7 +24,7 @@ class StrategyMetrics:
     annual_volatility: float
     sharpe_ratio: float
     max_drawdown: float
-    final_nav: float
+    final_il: float
 
     def __repr__(self):
         return (f"StrategyMetrics(mat={self.maturity}, strike={self.strike}, "
@@ -176,7 +176,7 @@ class BuyWriteStrategy:
             annual_volatility=annual_vol,
             sharpe_ratio=sharpe,
             max_drawdown=max_dd,
-            final_nav=il_series.iloc[-1]
+            final_il=il_series.iloc[-1]
         )
 
     def _get_maturity_label(self) -> str:
@@ -235,7 +235,7 @@ class BuyWriteOptimizer:
                 'Annual_Vol': m.annual_volatility,
                 'Sharpe': m.sharpe_ratio,
                 'Max_DD': m.max_drawdown,
-                'Final_NAV': m.final_nav
+                'Final_il': m.final_il
             }
             for m in self.all_metrics
         ]).sort_values('Sharpe', ascending=False)
@@ -298,7 +298,7 @@ class BuyWriteOptimizer:
         print(f"  Volatilité annuelle : {best_metrics.annual_volatility:.2%}")
         print(f"  Sharpe Ratio : {best_metrics.sharpe_ratio:.2f}")
         print(f"  Max Drawdown : {best_metrics.max_drawdown:.2%}")
-        print(f"  NAV final : {best_metrics.final_nav:.2f}")
+        print(f"  IL final : {best_metrics.final_il:.2f}")
 
         print(f"\n Top {top_n} strategies:")
         sorted_metrics = sorted(self.all_metrics,
