@@ -45,6 +45,18 @@ class BlackScholesModel:
         call = np.exp(-q * T) * S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
         return call
 
+    @staticmethod
+    def put_price(S: float, K: float, T: float, r: float,
+                   sigma: float, q: float = 0.0) -> float:
+        if T <= 0 or sigma <= 0:
+            return max(K - S, 0.0)
+
+        d1 = (np.log(S / K) + (r - q + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+        d2 = d1 - sigma * np.sqrt(T)
+
+        put = K * np.exp(-r * T) * norm.cdf(-d2) - np.exp(-q * T) * S * norm.cdf(-d1)
+        return put
+
 
 class MarketData:
 
@@ -69,8 +81,8 @@ class MarketData:
         self.spx = raw_data['^GSPC'].rename('SPX').dropna()
         self.vix = raw_data['^VIX'].rename('VIX').dropna()
         self.tbill = (raw_data['^IRX'] / 100).rename('Rf').dropna()  # Conversion en décimal
-
-        self.data = pd.concat([self.spx, self.vix, self.tbill], axis=1).dropna()
+        self.bxm = raw_data['^BXM'].rename('BXM').dropna()
+        self.data = pd.concat([self.spx, self.vix, self.tbill,self.bxm], axis=1).dropna()
         print(f"Données chargées : {len(self.data)} observations")
 
     def get_data(self) -> pd.DataFrame:
@@ -102,7 +114,7 @@ class BuyWriteStrategy:
         self.roll_dates = []
         self.trades = []
 
-    def run_backtest(self) -> Tuple[pd.Series, StrategyMetrics]:
+    def run_backtest(self) :
 
         self.roll_dates = self.data.iloc[::self.config.maturity_days].index
 
